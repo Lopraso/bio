@@ -132,28 +132,28 @@ async function fetchNowPlaying() {
       isPlaying = false;
       return;
     }
-      trackName.textContent = data.item.name;
-      trackArtist.textContent = data.item.artists.map(a => a.name).join(', ');
 
-      if (data.item.album && data.item.album.images && data.item.album.images.length > 0) {
-        const img = data.item.album.images[data.item.album.images.length > 1 ? 1 : 0].url;
-        trackArt.style.backgroundImage = 'url(' + img + ')';
-        trackArt.style.backgroundSize = 'cover';
-        trackArt.style.backgroundPosition = 'center';
-      }
+    trackName.textContent = data.item.name;
+    trackArtist.textContent = data.item.artists.map(a => a.name).join(', ');
 
-      lastProgress = data.progress_ms || 0;
-      lastDuration = data.item.duration_ms || 1;
-      lastTimestamp = Date.now();
-      isPlaying = data.is_playing;
-
-      const pct = (lastProgress / lastDuration) * 100;
-      progressFill.style.width = pct + '%';
-      timeCurrent.textContent = formatTime(lastProgress);
-      timeTotal.textContent = formatTime(lastDuration);
-
-      if (isPlaying) startInterpolation();
+    if (data.item.album && data.item.album.images && data.item.album.images.length > 0) {
+      const img = data.item.album.images[data.item.album.images.length > 1 ? 1 : 0].url;
+      trackArt.style.backgroundImage = 'url(' + img + ')';
+      trackArt.style.backgroundSize = 'cover';
+      trackArt.style.backgroundPosition = 'center';
     }
+
+    lastProgress = data.progress_ms || 0;
+    lastDuration = data.item.duration_ms || 1;
+    lastTimestamp = Date.now();
+    isPlaying = data.is_playing;
+
+    const pct = (lastProgress / lastDuration) * 100;
+    progressFill.style.width = pct + '%';
+    timeCurrent.textContent = formatTime(lastProgress);
+    timeTotal.textContent = formatTime(lastDuration);
+
+    if (isPlaying) startInterpolation();
   } catch (e) {
     trackName.textContent = 'Connection error';
     trackArtist.textContent = 'Retrying...';
