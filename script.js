@@ -72,12 +72,8 @@ document.querySelectorAll('.card').forEach(card => {
   });
 });
 
-const CLIENT_ID = '78ffd0aa61eb40a597d5658fd80a4f8a';
-const CLIENT_SECRET = '59a9965adff1447aaad7ab93560c839d';
-const REFRESH_TOKEN = 'AQCYxTASG070i5AaWEaPGuFUZYFf1wYbCJbHjtr6qQCNW_y5EuzZK3dk9BmUPRvzTKsb3qXZFak1AWdfpz1xfDTTOiOQvaySaLlnVsRPPLPZoBLWU_X7LOarajeAsM-8qfQ';
+const WORKER_URL = 'https://spotify-proxy.YOUR_SUBDOMAIN.workers.dev';
 
-let accessToken = null;
-let tokenExpiry = 0;
 let lastProgress = 0;
 let lastDuration = 1;
 let lastTimestamp = 0;
@@ -96,24 +92,6 @@ function formatTime(ms) {
   const m = Math.floor(s / 60);
   const sec = s % 60;
   return m + ':' + (sec < 10 ? '0' : '') + sec;
-}
-
-async function getAccessToken() {
-  if (accessToken && Date.now() < tokenExpiry) return accessToken;
-
-  const res = await fetch('https://accounts.spotify.com/api/token', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'Authorization': 'Basic ' + btoa(CLIENT_ID + ':' + CLIENT_SECRET)
-    },
-    body: 'grant_type=refresh_token&refresh_token=' + encodeURIComponent(REFRESH_TOKEN)
-  });
-
-  const data = await res.json();
-  accessToken = data.access_token;
-  tokenExpiry = Date.now() + (data.expires_in - 60) * 1000;
-  return accessToken;
 }
 
 function startInterpolation() {
@@ -140,12 +118,11 @@ function startInterpolation() {
 
 async function fetchNowPlaying() {
   try {
-    const token = await getAccessToken();
-    const res = await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
-      headers: { 'Authorization': 'Bearer ' + token }
-    });
+    const res = await fetch(WORKER_URL + '/now-playing');
 
-    if (res.status === 204 || res.status > 400) {
+    const data = await res.json();
+
+    if (data.playing === false || !data.item) {
       trackName.textContent = 'Nothing playing';
       trackArtist.textContent = 'Open Spotify to play';
       progressFill.style.width = '0%';
@@ -155,10 +132,6 @@ async function fetchNowPlaying() {
       isPlaying = false;
       return;
     }
-
-    const data = await res.json();
-
-    if (data.item) {
       trackName.textContent = data.item.name;
       trackArtist.textContent = data.item.artists.map(a => a.name).join(', ');
 
@@ -192,11 +165,8 @@ setInterval(fetchNowPlaying, 5000);
 
 async function fetchFavArts() {
   try {
-    const token = await getAccessToken();
     const ids = Array.from(document.querySelectorAll('.fav-item')).map(el => el.dataset.trackId).join(',');
-    const res = await fetch('https://api.spotify.com/v1/tracks?ids=' + ids, {
-      headers: { 'Authorization': 'Bearer ' + token }
-    });
+    const res = await fetch(WORKER_URL + '/tracks?ids=' + ids);
     const data = await res.json();
     if (data.tracks) {
       data.tracks.forEach(track => {
