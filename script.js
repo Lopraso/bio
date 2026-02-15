@@ -72,7 +72,7 @@ document.querySelectorAll('.card').forEach(card => {
   });
 });
 
-const WORKER_URL = 'https://spotify-proxy.YOUR_SUBDOMAIN.workers.dev';
+const WORKER_URL = 'https://holy-cell-7d81.oicaralhofdp1.workers.dev';
 
 let lastProgress = 0;
 let lastDuration = 1;
