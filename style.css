@@ -59,7 +59,7 @@ body {
 }
 
 .card {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(20, 20, 20, 0.75);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -67,6 +67,12 @@ body {
   overflow: hidden;
   transition: transform 0.1s ease, box-shadow 0.3s ease;
   will-change: transform;
+}
+
+@supports (backdrop-filter: blur(20px)) or (-webkit-backdrop-filter: blur(20px)) {
+  .card {
+    background: rgba(255, 255, 255, 0.06);
+  }
 }
 
 .card:hover {
